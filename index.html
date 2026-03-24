@@ -1163,271 +1163,286 @@
             </div>
         </div>
     </form>
+    
+<script>
+    // Auto-save functionality
+    let autoSaveTimeout;
+    const form = document.getElementById('interviewForm');
+    const autosaveIndicator = document.querySelector('.autosave-indicator');
 
-    <script>
-        // Auto-save functionality
-        let autoSaveTimeout;
-        const form = document.getElementById('interviewForm');
-        const autosaveIndicator = document.querySelector('.autosave-indicator');
+    // Listen for changes on all form inputs
+    form.addEventListener('input', () => {
+        clearTimeout(autoSaveTimeout);
+        autosaveIndicator.style.opacity = '1';
+        
+        autoSaveTimeout = setTimeout(() => {
+            autoSaveToLocalStorage();
+            autosaveIndicator.style.opacity = '0.5';
+        }, 2000); // Auto-save after 2 seconds of inactivity
+    });
 
-        // Listen for changes on all form inputs
-        form.addEventListener('input', () => {
-            clearTimeout(autoSaveTimeout);
-            autosaveIndicator.style.opacity = '1';
-            
-            autoSaveTimeout = setTimeout(() => {
-                autoSaveToLocalStorage();
-                autosaveIndicator.style.opacity = '0.5';
-            }, 2000); // Auto-save after 2 seconds of inactivity
-        });
+    // Auto-save to localStorage
+    function autoSaveToLocalStorage() {
+        const formData = getFormData();
+        localStorage.setItem('abaform_autosave', JSON.stringify(formData));
+        console.log('Auto-saved!');
+    }
 
-        // Auto-save to localStorage
-        function autoSaveToLocalStorage() {
-            const formData = getFormData();
-            localStorage.setItem('abaform_autosave', JSON.stringify(formData));
-        }
-
-        // Load auto-saved data on page load
-        window.addEventListener('load', () => {
-            const autoSaved = localStorage.getItem('abaform_autosave');
-            if (autoSaved) {
+    // Load auto-saved data on page load
+    window.addEventListener('load', () => {
+        const autoSaved = localStorage.getItem('abaform_autosave');
+        if (autoSaved) {
+            try {
                 const data = JSON.parse(autoSaved);
                 loadFormData(data);
+                console.log('Auto-save loaded');
+            } catch (e) {
+                console.error('Error loading auto-save:', e);
             }
-        });
+        }
+    });
 
-        // Get all form data
-        function getFormData() {
-            const formData = {};
-            const inputs = form.querySelectorAll('input, textarea');
-            
-            inputs.forEach(input => {
-                if (input.name) {
-                    if (input.type === 'checkbox') {
-                        formData[input.name] = input.checked;
-                    } else if (input.type === 'radio') {
-                        if (input.checked) {
-                            formData[input.name] = input.value;
-                        }
-                    } else {
+    // Get all form data
+    function getFormData() {
+        const formData = {};
+        const inputs = form.querySelectorAll('input, textarea');
+        
+        inputs.forEach(input => {
+            if (input.name) {
+                if (input.type === 'checkbox') {
+                    formData[input.name] = input.checked;
+                } else if (input.type === 'radio') {
+                    if (input.checked) {
                         formData[input.name] = input.value;
                     }
+                } else {
+                    formData[input.name] = input.value;
                 }
-            });
-            
-            return formData;
-        }
+            }
+        });
+        
+        return formData;
+    }
 
-        // Load form data
-        function loadFormData(data) {
-            Object.keys(data).forEach(key => {
-                const input = form.querySelector(`[name="${key}"]`);
-                if (input) {
-                    if (input.type === 'checkbox') {
-                        input.checked = data[key];
-                    } else if (input.type === 'radio') {
-                        if (input.value === data[key]) {
-                            input.checked = true;
-                        }
-                    } else {
-                        input.value = data[key];
+    // Load form data
+    function loadFormData(data) {
+        Object.keys(data).forEach(key => {
+            const inputs = form.querySelectorAll(`[name="${key}"]`);
+            inputs.forEach(input => {
+                if (input.type === 'checkbox') {
+                    input.checked = data[key];
+                } else if (input.type === 'radio') {
+                    if (input.value === data[key]) {
+                        input.checked = true;
                     }
+                } else {
+                    input.value = data[key] || '';
                 }
             });
-        }
+        });
+    }
 
-        // Save form with custom name
-        function saveForm() {
-            const candidateName = form.querySelector('[name
-="candidateName"]').value;
-            const interviewDate = form.querySelector('[name="interviewDate"]').value;
-            
-            // Pre-fill the form name with candidate name and date
-            const suggestedName = candidateName && interviewDate 
-                ? `${candidateName} - ${interviewDate}` 
-                : candidateName || `Interview ${new Date().toLocaleDateString()}`;
-            
-            document.getElementById('formName').value = suggestedName;
-            document.getElementById('saveModal').classList.add('show');
-        }
+    // Save form with custom name
+    window.saveForm = function() {
+        console.log('Save button clicked');
+        const candidateName = form.querySelector('[name="candidateName"]').value;
+        const interviewDate = form.querySelector('[name="interviewDate"]').value;
+        
+        // Pre-fill the form name with candidate name and date
+        const suggestedName = candidateName && interviewDate 
+            ? `${candidateName} - ${interviewDate}` 
+            : candidateName || `Interview ${new Date().toLocaleDateString()}`;
+        
+        document.getElementById('formName').value = suggestedName;
+        document.getElementById('saveModal').classList.add('show');
+    }
 
-        // Confirm save with custom name
-        function confirmSave() {
-            const formName = document.getElementById('formName').value.trim();
-            
-            if (!formName) {
-                showToast('Please enter a name for this form', 'error');
-                return;
-            }
-            
-            const formData = getFormData();
-            const savedForms = JSON.parse(localStorage.getItem('abaform_saved') || '[]');
-            
-            // Check if name already exists
-            const existingIndex = savedForms.findIndex(f => f.name === formName);
-            
-            const saveData = {
-                name: formName,
-                data: formData,
-                timestamp: new Date().toISOString()
-            };
-            
-            if (existingIndex >= 0) {
-                // Update existing
-                savedForms[existingIndex] = saveData;
-                showToast('Form updated successfully! 💾', 'success');
-            } else {
-                // Add new
-                savedForms.push(saveData);
-                showToast('Form saved successfully! 💾', 'success');
-            }
-            
-            localStorage.setItem('abaform_saved', JSON.stringify(savedForms));
+    // Confirm save with custom name
+    window.confirmSave = function() {
+        console.log('Confirm save clicked');
+        const formName = document.getElementById('formName').value.trim();
+        
+        if (!formName) {
+            showToast('Please enter a name for this form', 'error');
+            return;
+        }
+        
+        const formData = getFormData();
+        const savedForms = JSON.parse(localStorage.getItem('abaform_saved') || '[]');
+        
+        // Check if name already exists
+        const existingIndex = savedForms.findIndex(f => f.name === formName);
+        
+        const saveData = {
+            name: formName,
+            data: formData,
+            timestamp: new Date().toISOString()
+        };
+        
+        if (existingIndex >= 0) {
+            // Update existing
+            savedForms[existingIndex] = saveData;
+            showToast('Form updated successfully! 💾', 'success');
+        } else {
+            // Add new
+            savedForms.push(saveData);
+            showToast('Form saved successfully! 💾', 'success');
+        }
+        
+        localStorage.setItem('abaform_saved', JSON.stringify(savedForms));
+        closeSaveModal();
+    }
+
+    window.closeSaveModal = function() {
+        document.getElementById('saveModal').classList.remove('show');
+    }
+
+    // Open load modal
+    window.openLoadModal = function() {
+        console.log('Load button clicked');
+        const savedForms = JSON.parse(localStorage.getItem('abaform_saved') || '[]');
+        const listContainer = document.getElementById('savedFormsList');
+        
+        if (savedForms.length === 0) {
+            listContainer.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">No saved forms found. Save your first form to see it here!</p>';
+        } else {
+            listContainer.innerHTML = savedForms
+                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+                .map((form, index) => {
+                    const date = new Date(form.timestamp).toLocaleString();
+                    return `
+                        <div class="saved-form-item">
+                            <div class="saved-form-info">
+                                <div class="saved-form-name">${form.name}</div>
+                                <div class="saved-form-date">Saved: ${date}</div>
+                            </div>
+                            <div class="saved-form-actions">
+                                <button class="small-btn load" onclick="loadSavedForm(${index})">Load</button>
+                                <button class="small-btn delete" onclick="deleteSavedForm(${index})">Delete</button>
+                            </div>
+                        </div>
+                    `;
+                })
+                .join('');
+        }
+        
+        document.getElementById('loadModal').classList.add('show');
+    }
+
+    window.closeLoadModal = function() {
+        document.getElementById('loadModal').classList.remove('show');
+    }
+
+    // Load a saved form
+    window.loadSavedForm = function(index) {
+        console.log('Loading form:', index);
+        const savedForms = JSON.parse(localStorage.getItem('abaform_saved') || '[]');
+        const savedForm = savedForms[index];
+        
+        if (savedForm) {
+            loadFormData(savedForm.data);
+            showToast(`Loaded: ${savedForm.name} 📂`, 'success');
+            closeLoadModal();
+        }
+    }
+
+    // Delete a saved form
+    window.deleteSavedForm = function(index) {
+        if (!confirm('Are you sure you want to delete this saved form?')) {
+            return;
+        }
+        
+        const savedForms = JSON.parse(localStorage.getItem('abaform_saved') || '[]');
+        const deletedName = savedForms[index].name;
+        savedForms.splice(index, 1);
+        localStorage.setItem('abaform_saved', JSON.stringify(savedForms));
+        
+        showToast(`Deleted: ${deletedName} 🗑️`, 'success');
+        openLoadModal(); // Refresh the list
+    }
+
+    // Clear all form data
+    window.clearForm = function() {
+        console.log('Clear button clicked');
+        if (!confirm('Are you sure you want to clear all fields? This cannot be undone.')) {
+            return;
+        }
+        
+        form.reset();
+        localStorage.removeItem('abaform_autosave');
+        showToast('Form cleared! 🗑️', 'success');
+    }
+
+    // Export to PDF (print function)
+    window.exportToPDF = function() {
+        console.log('Export PDF clicked');
+        showToast('Opening print dialog... 📄', 'success');
+        setTimeout(() => {
+            window.print();
+        }, 500);
+    }
+
+    // Show toast notification
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.className = 'toast show';
+        
+        if (type === 'error') {
+            toast.classList.add('error');
+        }
+        
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
+    }
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+        // Ctrl/Cmd + S to save
+        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+            e.preventDefault();
+            saveForm();
+        }
+        
+        // Ctrl/Cmd + P to print
+        if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+            e.preventDefault();
+            exportToPDF();
+        }
+        
+        // Escape to close modals
+        if (e.key === 'Escape') {
+            closeLoadModal();
             closeSaveModal();
         }
+    });
 
-        function closeSaveModal() {
-            document.getElementById('saveModal').classList.remove('show');
+    // Close modals when clicking outside
+    document.getElementById('loadModal').addEventListener('click', (e) => {
+        if (e.target.id === 'loadModal') {
+            closeLoadModal();
         }
+    });
 
-        // Open load modal
-        function openLoadModal() {
-            const savedForms = JSON.parse(localStorage.getItem('abaform_saved') || '[]');
-            const listContainer = document.getElementById('savedFormsList');
-            
-            if (savedForms.length === 0) {
-                listContainer.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">No saved forms found. Save your first form to see it here!</p>';
-            } else {
-                listContainer.innerHTML = savedForms
-                    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-                    .map((form, index) => {
-                        const date = new Date(form.timestamp).toLocaleString();
-                        return `
-                            <div class="saved-form-item">
-                                <div class="saved-form-info">
-                                    <div class="saved-form-name">${form.name}</div>
-                                    <div class="saved-form-date">Saved: ${date}</div>
-                                </div>
-                                <div class="saved-form-actions">
-                                    <button class="small-btn load" onclick="loadSavedForm(${index})">Load</button>
-                                    <button class="small-btn delete" onclick="deleteSavedForm(${index})">Delete</button>
-                                </div>
-                            </div>
-                        `;
-                    })
-                    .join('');
-            }
-            
-            document.getElementById('loadModal').classList.add('show');
+    document.getElementById('saveModal').addEventListener('click', (e) => {
+        if (e.target.id === 'saveModal') {
+            closeSaveModal();
         }
+    });
 
-        function closeLoadModal() {
-            document.getElementById('loadModal').classList.remove('show');
-        }
+    // Show welcome message on first load
+    if (!localStorage.getItem('abaform_visited')) {
+        setTimeout(() => {
+            showToast('Welcome! Your form auto-saves as you type ✨', 'success');
+            localStorage.setItem('abaform_visited', 'true');
+        }, 1000);
+    }
 
-        // Load a saved form
-        function loadSavedForm(index) {
-            const savedForms = JSON.parse(localStorage.getItem('abaform_saved') || '[]');
-            const form = savedForms[index];
-            
-            if (form) {
-                loadFormData(form.data);
-                showToast(`Loaded: ${form.name} 📂`, 'success');
-                closeLoadModal();
-            }
-        }
+    // Debug: Log when script loads
+    console.log('ABA Form script loaded successfully');
+</script>
 
-        // Delete a saved form
-        function deleteSavedForm(index) {
-            if (!confirm('Are you sure you want to delete this saved form?')) {
-                return;
-            }
-            
-            const savedForms = JSON.parse(localStorage.getItem('abaform_saved') || '[]');
-            const deletedName = savedForms[index].name;
-            savedForms.splice(index, 1);
-            localStorage.setItem('abaform_saved', JSON.stringify(savedForms));
-            
-            showToast(`Deleted: ${deletedName} 🗑️`, 'success');
-            openLoadModal(); // Refresh the list
-        }
-
-        // Clear all form data
-        function clearForm() {
-            if (!confirm('Are you sure you want to clear all fields? This cannot be undone.')) {
-                return;
-            }
-            
-            form.reset();
-            localStorage.removeItem('abaform_autosave');
-            showToast('Form cleared! 🗑️', 'success');
-        }
-
-        // Export to PDF (print function)
-        function exportToPDF() {
-            showToast('Opening print dialog... 📄', 'success');
-            setTimeout(() => {
-                window.print();
-            }, 500);
-        }
-
-        // Show toast notification
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.className = 'toast show';
-            
-            if (type === 'error') {
-                toast.classList.add('error');
-            }
-            
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
-        }
-
-        // Keyboard shortcuts
-        document.addEventListener('keydown', (e) => {
-            // Ctrl/Cmd + S to save
-            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-                e.preventDefault();
-                saveForm();
-            }
-            
-            // Ctrl/Cmd + P to print
-            if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
-                e.preventDefault();
-                exportToPDF();
-            }
-            
-            // Escape to close modals
-            if (e.key === 'Escape') {
-                closeLoadModal();
-                closeSaveModal();
-            }
-        });
-
-        // Close modals when clicking outside
-        document.getElementById('loadModal').addEventListener('click', (e) => {
-            if (e.target.id === 'loadModal') {
-                closeLoadModal();
-            }
-        });
-
-        document.getElementById('saveModal').addEventListener('click', (e) => {
-            if (e.target.id === 'saveModal') {
-                closeSaveModal();
-            }
-        });
-
-        // Show welcome message on first load
-        if (!localStorage.getItem('abaform_visited')) {
-            setTimeout(() => {
-                showToast('Welcome! Your form auto-saves as you type ✨', 'success');
-                localStorage.setItem('abaform_visited', 'true');
-            }, 1000);
-        }
-    </script>
 
 </body>
 </html>
