@@ -1,0 +1,1433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ABA Direct RBT Interview form</title>
+    <style>
+        @media print {
+            body {
+                margin: 0;
+                padding: 0;
+            }
+            .page-break {
+                page-break-before: always;
+            }
+            .no-break {
+                page-break-inside: avoid;
+            }
+            @page {
+                size: letter portrait;
+                margin: 0.5in;
+            }
+            .action-bar {
+                display: none !important;
+            }
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.4;
+            color: #333;
+            max-width: 8.5in;
+            margin: 0 auto;
+            padding: 0.5in;
+            background: #fff;
+            font-size: 10pt;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c5aa0;
+            font-size: 20pt;
+            margin: 0 0 15px 0;
+            padding-bottom: 8px;
+            border-bottom: 3px solid #2c5aa0;
+        }
+
+        h2 {
+            color: #2c5aa0;
+            font-size: 12pt;
+            margin: 18px 0 8px 0;
+            padding-bottom: 4px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        /* Action Bar Styles */
+        .action-bar {
+            position: sticky;
+            top: 0;
+            background: linear-gradient(135deg, #2c5aa0 0%, #1a3d6b 100%);
+            padding: 12px 20px;
+            margin: -0.5in -0.5in 20px -0.5in;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .action-btn {
+            background: white;
+            color: #2c5aa0;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 10pt;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .action-btn:hover {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .action-btn:active {
+            transform: translateY(0);
+        }
+
+        .action-btn.danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .action-btn.danger:hover {
+            background: #c82333;
+        }
+
+        .action-btn.success {
+            background: #28a745;
+            color: white;
+        }
+
+        .action-btn.success:hover {
+            background: #218838;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            font-weight: 600;
+            opacity: 0;
+            transform: translateY(100px);
+            transition: all 0.4s ease;
+            z-index: 2000;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast.error {
+            background: #dc3545;
+        }
+
+        /* Auto-save indicator */
+        .autosave-indicator {
+            color: white;
+            font-size: 9pt;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-left: auto;
+        }
+
+        .autosave-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #28a745;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            font-size: 18pt;
+            font-weight: bold;
+            color: #2c5aa0;
+            margin-bottom: 20px;
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .saved-forms-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 15px 0;
+        }
+
+        .saved-form-item {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f9f9f9;
+            transition: background 0.2s;
+        }
+
+        .saved-form-item:hover {
+            background: #f0f0f0;
+        }
+
+        .saved-form-info {
+            flex-grow: 1;
+        }
+
+        .saved-form-name {
+            font-weight: 600;
+            color: #2c5aa0;
+        }
+
+        .saved-form-date {
+            font-size: 8pt;
+            color: #666;
+        }
+
+        .saved-form-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .small-btn {
+            padding: 6px 12px;
+            font-size: 9pt;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .small-btn.load {
+            background: #2c5aa0;
+            color: white;
+        }
+
+        .small-btn.load:hover {
+            background: #1a3d6b;
+        }
+
+        .small-btn.delete {
+            background: #dc3545;
+            color: white;
+        }
+
+        .small-btn.delete:hover {
+            background: #c82333;
+        }
+
+        .header-section {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            font-size: 9pt;
+        }
+
+        .header-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-row.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .field-label {
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .field-input {
+            border: none;
+            border-bottom: 1px solid #333;
+            flex-grow: 1;
+            min-width: 100px;
+            padding: 4px;
+            font-family: inherit;
+            font-size: inherit;
+            background: transparent;
+        }
+
+        .field-input:focus {
+            outline: none;
+            border-bottom: 2px solid #2c5aa0;
+            background: rgba(44, 90, 160, 0.05);
+        }
+
+        .checkbox-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 6px 0;
+            font-size: 9pt;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 3px;
+            transition: background 0.2s;
+            min-height: 44px;
+            align-items: center;
+        }
+
+        .checkbox-item:hover {
+            background: rgba(44, 90, 160, 0.08);
+        }
+
+        .checkbox-item input[type="checkbox"],
+        .checkbox-item input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            margin: 0;
+            flex-shrink: 0;
+        }
+
+        /* Enhanced touch targets for mobile/iPad */
+        @media (max-width: 768px) {
+            .checkbox-item {
+                min-height: 48px;
+                padding: 6px;
+            }
+            
+            .checkbox-item input[type="checkbox"],
+            .checkbox-item input[type="radio"] {
+                width: 24px;
+                height: 24px;
+            }
+
+            .action-bar {
+                padding: 10px;
+            }
+
+            .action-btn {
+                font-size: 9pt;
+                padding: 8px 14px;
+            }
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 8px 0 12px 0;
+            font-size: 9pt;
+        }
+
+        table th {
+            background: #2c5aa0;
+            color: white;
+            padding: 6px 8px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 9pt;
+        }
+
+        table td {
+            padding: 6px 8px;
+            border: 1px solid #ddd;
+            vertical-align: top;
+        }
+
+        table tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        table input[type="text"],
+        table textarea {
+            width: 100%;
+            border: 1px solid #ddd;
+            padding: 4px;
+            font-family: inherit;
+            font-size: inherit;
+            border-radius: 3px;
+        }
+
+        table input[type="text"]:focus,
+        table textarea:focus {
+            outline: none;
+            border-color: #2c5aa0;
+            background: rgba(44, 90, 160, 0.05);
+        }
+
+        .rating-options {
+            display: flex;
+            gap: 8px;
+            white-space: nowrap;
+            font-size: 8pt;
+            align-items: center;
+        }
+
+        .rating-options label {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 3px;
+            transition: background 0.2s;
+        }
+
+        .rating-options label:hover {
+            background: rgba(44, 90, 160, 0.08);
+        }
+
+        .rating-options input[type="radio"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            margin: 0;
+        }
+
+        .scenario-box {
+            background: #f9f9f9;
+            border-left: 3px solid #2c5aa0;
+            padding: 8px 10px;
+            margin: 8px 0;
+            font-size: 9pt;
+        }
+
+        .scenario-question {
+            font-style: italic;
+            color: #555;
+            margin-bottom: 6px;
+        }
+
+        .response-area {
+            border: 1px solid #ddd;
+            min-height: 80px;
+            padding: 8px;
+            background: white;
+            margin: 6px 0;
+            font-family: inherit;
+            font-size: inherit;
+            width: 100%;
+            border-radius: 3px;
+            resize: vertical;
+        }
+
+        .response-area:focus {
+            outline: none;
+            border-color: #2c5aa0;
+            background: rgba(44, 90, 160, 0.02);
+        }
+
+        .notes-area {
+            border: 1px solid #ddd;
+            min-height: 60px;
+            padding: 8px;
+            background: white;
+            margin: 6px 0;
+            font-family: inherit;
+            font-size: inherit;
+            width: 100%;
+            border-radius: 3px;
+            resize: vertical;
+        }
+
+        .notes-area:focus {
+            outline: none;
+            border-color: #2c5aa0;
+            background: rgba(44, 90, 160, 0.02);
+        }
+
+        .competency-section {
+            margin: 10px 0;
+            padding: 8px;
+            background: #fafafa;
+            border-radius: 4px;
+        }
+
+        .competency-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 10pt;
+        }
+
+        .flag-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            margin: 8px 0;
+            font-size: 9pt;
+        }
+
+        @media (max-width: 768px) {
+            .flag-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .signature-section {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px solid #2c5aa0;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        .signature-line {
+            border: none;
+            border-bottom: 1px solid #333;
+            padding: 8px 4px;
+            margin-top: 8px;
+            font-family: inherit;
+            font-size: inherit;
+            width: 100%;
+            background: transparent;
+        }
+
+        .signature-line:focus {
+            outline: none;
+            border-bottom: 2px solid #2c5aa0;
+            background: rgba(44, 90, 160, 0.05);
+        }
+
+        .section-content {
+            margin: 8px 0;
+        }
+
+        .skills-table td:first-child {
+            font-weight: 600;
+            width: 45%;
+        }
+
+        .skills-table td:nth-child(2) {
+            width: 15%;
+            text-align: center;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid #e0e0e0;
+            margin: 12px 0;
+        }
+
+        .small-text {
+            font-size: 8pt;
+            color: #666;
+        }
+
+        /* Responsive adjustments for tablets */
+        @media (max-width: 768px) {
+            body {
+                padding: 0.25in;
+                font-size: 11pt;
+            }
+
+            .header-section {
+                grid-template-columns: 1fr;
+            }
+
+            .checkbox-group {
+                gap: 8px;
+            }
+
+            .signature-section {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Action Bar -->
+    <div class="action-bar">
+        <button class="action-btn success" onclick="saveForm()">
+            💾 Save Form
+        </button>
+        <button class="action-btn" onclick="openLoadModal()">
+            📂 Load Saved
+        </button>
+        <button class="action-btn" onclick="exportToPDF()">
+            📄 Export PDF
+        </button>
+        <button class="action-btn danger" onclick="clearForm()">
+            🗑️ Clear All
+        </button>
+        <div class="autosave-indicator">
+            <div class="autosave-dot"></div>
+            <span>Auto-saving...</span>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Load Modal -->
+    <div class="modal" id="loadModal">
+        <div class="modal-content">
+            <div class="modal-header">📂 Load Saved Form</div>
+            <div class="modal-body">
+                <div class="saved-forms-list" id="savedFormsList"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="action-btn" onclick="closeLoadModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Modal -->
+    <div class="modal" id="saveModal">
+        <div class="modal-content">
+            <div class="modal-header">💾 Save Form</div>
+            <div class="modal-body">
+                <label for="formName" style="font-weight: 600; display: block; margin-bottom: 8px;">
+                    Form Name:
+                </label>
+                <input 
+                    type="text" 
+                    id="formName" 
+                    placeholder="e.g., John Doe - 3/24/2026"
+                    style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 10pt;"
+                >
+            </div>
+            <div class="modal-footer">
+                <button class="action-btn" onclick="closeSaveModal()">Cancel</button>
+                <button class="action-btn success" onclick="confirmSave()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <h1>ABA Direct RBT Interview Form</h1>
+
+    <form id="interviewForm">
+        <div class="header-section">
+            <div class="header-row">
+                <span class="field-label">Candidate Name:</span>
+                <input type="text" class="field-input" name="candidateName">
+            </div>
+            <div class="header-row">
+                <span class="field-label">Date:</span>
+                <input type="date" class="field-input" name="interviewDate">
+            </div>
+            <div class="header-row full-width">
+                <span class="field-label">Position Applied For:</span>
+                <div class="checkbox-group">
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="positionRBT"> RBT
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="positionBT"> Behavior Technician
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="positionBCaBA"> BCaBA
+                    </label>
+                </div>
+            </div>
+            <div class="header-row">
+                <span class="field-label">Interviewer(s):</span>
+                <input type="text" class="field-input" name="interviewers">
+            </div>
+            <div class="header-row">
+                <span class="field-label">Interview Type:</span>
+                <div class="checkbox-group">
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="typeInPerson"> In-Person
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="typeVideo"> Video
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="typePhone"> Phone
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <h2>Candidate Background & Experience</h2>
+
+        <div class="section-content">
+            <div style="margin-bottom: 8px;">
+                <strong>Previous ABA/Direct Care Experience:</strong>
+                <div class="checkbox-group">
+                    <label class="checkbox-item"><input type="checkbox" name="expNone"> None</label>
+                    <label class="checkbox-item"><input type="checkbox" name="exp0to6"> 0-6 months</label>
+                    <label class="checkbox-item"><input type="checkbox" name="exp6to12"> 6-12 months</label>
+                    <label class="checkbox-item"><input type="checkbox" name="exp1to2"> 1-2 years</label>
+                    <label class="checkbox-item"><input type="checkbox" name="exp2plus"> 2+ years</label>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 8px;">
+                <strong>Current RBT Certification Status:</strong>
+                <div class="checkbox-group">
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="rbtCertified"> RBT Certified (Cert #: <input type="text" name="certNumber" style="width: 100px; border: none; border-bottom: 1px solid #333; padding: 2px;"> Exp: <input type="text" name="certExp" style="width: 80px; border: none; border-bottom: 1px solid #333; padding: 2px;">)
+                    </label>
+                </div>
+                <div class="checkbox-group">
+                    <label class="checkbox-item"><input type="checkbox" name="training40"> 40-Hour Training Completed</label>
+                    <label class="checkbox-item"><input type="checkbox" name="trainingProgress"> In Progress</label>
+                    <label class="checkbox-item"><input type="checkbox" name="trainingNot"> Not Started</label>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 8px;">
+                <strong>Populations Worked With:</strong>
+                <div class="checkbox-group">
+                    <label class="checkbox-item"><input type="checkbox" name="popEarly"> Early Intervention (0-5)</label>
+                    <label class="checkbox-item"><input type="checkbox" name="popSchool"> School-Age (6-12)</label>
+                    <label class="checkbox-item"><input type="checkbox" name="popAdolescent"> Adolescents (13-17)</label>
+                    <label class="checkbox-item"><input type="checkbox" name="popAdult"> Adults (18+)</label>
+                    <label class="checkbox-item"><input type="checkbox" name="popAutism"> Autism</label>
+                    <label class="checkbox-item"><input type="checkbox" name="popDD"> Developmental Disabilities</label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="popOtherCheck"> Other: <input type="text" name="popOther" style="width: 120px; border: none; border-bottom: 1px solid #333; padding: 2px;">
+                    </label>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 8px;">
+                <strong>Settings:</strong>
+                <div class="checkbox-group">
+                    <label class="checkbox-item"><input type="checkbox" name="settingHome"> Home-Based</label>
+                    <label class="checkbox-item"><input type="checkbox" name="settingCenter"> Center-Based</label>
+                    <label class="checkbox-item"><input type="checkbox" name="settingSchool"> School</label>
+                    <label class="checkbox-item"><input type="checkbox" name="settingCommunity"> Community</label>
+                </div>
+            </div>
+
+            <strong>Notes:</strong>
+            <textarea class="notes-area" name="backgroundNotes"></textarea>
+        </div>
+
+        <h2>Behavioral & Technical Knowledge Assessment</h2>
+
+        <div class="section-content">
+            <p style="margin: 6px 0; font-size: 9pt;"><strong>Understanding of ABA Principles</strong> (Rate 1-5: 1=No Knowledge, 5=Expert Understanding)</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Concept</th>
+                        <th>Rating</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Can explain what ABA is and its purpose</td>
+                        <td>
+                            <div class="rating-options">
+                                <label><input type="radio" name="rating1" value="1">1</label>
+                                <label><input type="radio" name="rating1" value="2">2</label>
+                                <label><input type="radio" name="rating1" value="3">3</label>
+                                <label><input type="radio" name="rating1" value="4">4</label>
+                                <label><input type="radio" name="rating1" value="5">5</label>
+                            </div>
+                        </td>
+                        <td><input type="text" name="rating1Notes"></td>
+                    </tr>
+                    <tr>
+                        <td>Understanding of reinforcement vs. punishment</td>
+                        <td>
+                            <div class="rating-options">
+                                <label><input type="radio" name="rating2" value="1">1</label>
+                                <label><input type="radio" name="rating2" value="2">2</label>
+                                <label><input type="radio" name="rating2" value="3">3</label>
+                                <label><input type="radio" name="rating2" value="4">4</label>
+                                <label><input type="radio" name="rating2" value="5">5</label>
+                            </div>
+                        </td>
+                        <td><input type="text" name="rating2Notes"></td>
+                    </tr>
+                    <tr>
+                        <td>Knowledge of antecedent-behavior-consequence (ABC)</td>
+                        <td>
+                            <div class="rating-options">
+                                <label><input type="radio" name="rating3" value="1">1</label>
+                                <label><input type="radio" name="rating3" value="2">2</label>
+                                <label><input type="radio" name="rating3" value="3">3</label>
+                                <label><input type="radio" name="rating3" value="4">4</label>
+                                <label><input type="radio" name="rating3" value="5">5</label>
+                            </div>
+                        </td>
+                        <td><input type="text" name="rating3Notes"></td>
+                    </tr>
+                    <tr>
+                        <td>Familiarity with function of behavior</td>
+                        <td>
+                            <div class="rating-options">
+                                <label><input type="radio" name="rating4" value="1">1</label>
+                                <label><input type="radio" name="rating4" value="2">2</label>
+                                <label><input type="radio" name="rating4" value="3">3</label>
+                                <label><input type="radio" name="rating4" value="4">4</label>
+                                <label><input type="radio" name="rating4" value="5">5</label>
+                            </div>
+                        </td>
+                        <td><input type="text" name="rating4Notes"></td>
+                    </tr>
+                    <tr>
+                        <td>Understanding of prompting procedures</td>
+                        <td>
+                            <div class="rating-options">
+                                <label><input type="radio" name="rating5" value="1">1</label>
+                                <label><input type="radio" name="rating5" value="2">2</label>
+                                <label><input type="radio" name="rating5" value="3">3</label>
+                                <label><input type="radio" name="rating5" value="4">4</label>
+                                <label><input type="radio" name="rating5" value="5">5</label>
+                            </div>
+                        </td>
+                        <td><input type="text" name="rating5Notes"></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <strong>Additional Notes on Knowledge Base:</strong>
+            <textarea class="notes-area" name="knowledgeNotes"></textarea>
+        </div>
+
+        <div class="page-break"></div>
+
+        <h2>ABA Skills Checklist</h2>
+
+        <div class="section-content">
+            <p style="margin: 6px 0; font-size: 9pt;"><strong>Rate candidate's knowledge/experience with each skill:</strong><br>
+            <span class="small-text">☐ = No Experience/Knowledge  |  ✓ = Some Experience  |  ✓✓ = Proficient</span></p>
+
+            <table class="skills-table">
+                <thead>
+                    <tr>
+                        <th>Skill/Concept</th>
+                        <th>Rating</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1. Discrete Trial Training (DTT)</strong> – Implementing structured teaching trials with clear SD, response, and consequence</td>
+                        <td><input type="text" name="skill1Rating"></td>
+                        <td><input type="text" name="skill1Notes"></td>
+                    </tr>
+                    <tr>
+                        <td><strong>2. Data Collection</strong> – Frequency, duration, interval recording, task analysis data</td>
+                        <td><input type="text" name="skill2Rating"></td>
+                        <td><input type="text" name="skill2Notes"></td>
+                    </tr>
+                    <tr>
+                        <td><strong>3. Reinforcement Delivery</strong> – Identifying and delivering reinforcers contingently and immediately</td>
+                        <td><input type="text" name="skill3Rating"></td>
+                        <td><input type="text" name="skill3Notes"></td>
+                    </tr>
+                    <tr>
+                        <td><strong>4. Prompt Hierarchy</strong> – Using and fading prompts (full physical, partial physical, modeling, gestural, verbal)</td>
+                        <td><input type="text" name="skill4Rating"></td>
+                        <td><input type="text" name="skill4Notes"></td>
+                    </tr>
+                    <tr>
+                        <td><strong>5. Behavior Reduction Procedures</strong> – Implementing planned ignoring, redirection, and crisis protocols per behavior intervention plan (BIP)</td>
+                        <td><input type="text" name="skill5Rating"></td>
+                        <td><input type="text" name="skill5Notes"></td>
+                    </tr>
+                    <tr>
+                        <td><strong>6. Naturalistic Teaching</strong> – Incidental teaching, natural environment teaching (NET), embedded learning opportunities</td>
+                        <td><input type="text" name="skill6Rating"></td>
+                        <td><input type="text" name="skill6Notes"></td>
+                    </tr>
+                    <tr>
+                        <td><strong>7. Pairing & Rapport Building</strong> – Establishing instructional control and therapeutic relationship</td>
+                        <td><input type="text" name="skill7Rating"></td>
+                        <td><input type="text" name="skill7Notes"></td>
+                    </tr>
+                    <tr>
+                        <td><strong>8. Generalization & Maintenance</strong> – Programming for skill transfer across settings, people, and materials</td>
+                        <td><input type="text" name="skill8Rating"></td>
+                        <td><input type="text" name="skill8Notes"></td>
+                    </tr>
+                    <tr>
+                        <td><strong>9. Task Analysis & Chaining</strong> – Breaking down complex skills; forward/backward chaining implementation</td>
+                        <td><input type="text" name="skill9Rating"></td>
+                        <td><input type="text" name="skill9Notes"></td>
+                    </tr>
+                    <tr>
+                        <td><strong>10. Crisis Management & Safety</strong> – De-escalation techniques, safety protocols, following crisis plans</td>
+                        <td><input type="text" name="skill10Rating"></td>
+                        <td><input type="text" name="skill10Notes"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h2>Scenario-Based Questions & Responses</h2>
+
+        <div class="section-content no-break">
+            <div class="scenario-box">
+                <strong>Scenario 1: Challenging Behavior</strong>
+                <div class="scenario-question">"A client begins engaging in aggression during a non-preferred task. What would you do?"</div>
+                <strong>Response:</strong>
+                <textarea class="response-area" name="scenario1Response"></textarea>
+                <strong>Evaluator Notes:</strong>
+                <div class="checkbox-group">
+                    <label class="checkbox-item"><input type="checkbox" name="scenario1BIP"> Mentioned following BIP</label>
+                    <label class="checkbox-item"><input type="checkbox" name="scenario1Safety"> Discussed safety first</label>
+                    <label class="checkbox-item"><input type="checkbox" name="scenario1Data"> Mentioned data collection</label>
+                    <label class="checkbox-item"><input type="checkbox" name="scenario1Antecedent"> Discussed antecedent strategies</label>
+                    <label class="checkbox-item"><input type="checkbox" name="scenario1Function"> Appropriate understanding of function</label>
+                </div>
+            </div>
+
+            <div class="scenario-box">
+                <strong>Scenario 2: Reinforcement</strong>
+                <div class="scenario-question">"You notice a reinforcer that worked last week is no longer motivating the client. What's your approach?"</div>
+                <strong>Response:</strong>
+                <textarea class="response-area" name="scenario2Response"></textarea>
+                <strong>Evaluator Notes:</strong>
+                <div class="checkbox-group">
+                    <label class="checkbox-item"><input type="checkbox" name="scenario2Preference"> Mentioned preference assessment</label>
+                    <label class="checkbox-item"><input type="checkbox" name="scenario2BCBA"> Discussed communicating with BCBA</label>
+                    <label class="checkbox-item"><input type="checkbox" name="scenario2Satiation"> Understanding of satiation</label>
+                    <label class="checkbox-item"><input type="checkbox" name="scenario2Flexible"> Flexible problem-solving approach</label>
+                </div>
+            </div>
+
+            <div class="scenario-box">
+                <strong>Scenario 3: Ethical Situation</strong>
+                <div class="scenario-question">"A parent asks you to work on a goal that's not in the treatment plan. How do you handle this?"</div>
+                <strong>Response:</strong>
+                <textarea class="response-area" name="scenario3Response"></textarea>
+                <strong>Evaluator Notes:</strong>
+                <div class="checkbox-group">
+                    <label class="checkbox-item"><input type="checkbox" name="scenario3Scope"> Mentioned scope of practice</label>
+                    <label class="checkbox-item"><input type="checkbox" name="scenario3Consult"> Discussed consulting BCBA</label>
+                    <label class="checkbox-item"><input type="checkbox" name="scenario3Boundaries"> Professional boundaries</label>
+                    <label class="checkbox-item"><input type="checkbox" name="scenario3Client"> Client-centered response</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-break"></div>
+
+        <h2>Professional Competencies</h2>
+
+        <div class="section-content">
+            <div class="competency-section">
+                <div class="competency-title">Communication Skills</div>
+                <div class="checkbox-group">
+                    <label class="checkbox-item"><input type="radio" name="commSkills" value="excellent"> Excellent</label>
+                    <label class="checkbox-item"><input type="radio" name="commSkills" value="good"> Good</label>
+                    <label class="checkbox-item"><input type="radio" name="commSkills" value="adequate"> Adequate</label>
+                    <label class="checkbox-item"><input type="radio" name="commSkills" value="needs"> Needs Development</label>
+                </div>
+                <strong>Notes:</strong>
+                <textarea class="notes-area" style="min-height: 30px;" name="commSkillsNotes"></textarea>
+            </div>
+
+            <div class="competency-section">
+                <div class="competency-title">Reliability & Professionalism</div>
+                <div class="checkbox-group">
+                    <label class="checkbox-item"><input type="radio" name="reliability" value="excellent"> Excellent</label>
+                    <label class="checkbox-item"><input type="radio" name="reliability" value="good"> Good</label>
+                    <label class="checkbox-item"><input type="radio" name="reliability" value="adequate"> Adequate</label>
+                    <label class="checkbox-item"><input type="radio" name="reliability" value="needs"> Needs Development</label>
+                </div>
+                <strong>Notes:</strong>
+                <textarea class="notes-area" style="min-height: 30px;" name="reliabilityNotes"></textarea>
+            </div>
+
+            <div class="competency-section">
+                <div class="competency-title">Flexibility & Adaptability</div>
+                <div class="checkbox-group">
+                    <label class="checkbox-item"><input type="radio" name="flexibility" value="excellent"> Excellent</label>
+                    <label class="checkbox-item"><input type="radio" name="flexibility" value="good"> Good</label>
+                    <label class="checkbox-item"><input type="radio" name="flexibility" value="adequate"> Adequate</label>
+                    <label class="checkbox-item"><input type="radio" name="flexibility" value="needs"> Needs Development</label>
+                </div>
+                <strong>Notes:</strong>
+                <textarea class="notes-area" style="min-height: 30px;" name="flexibilityNotes"></textarea>
+            </div>
+
+            <div class="competency-section">
+                <div class="competency-title">Team Collaboration</div>
+                <div class="checkbox-group">
+                    <label class="checkbox-item"><input type="radio" name="teamwork" value="excellent"> Excellent</label>
+                    <label class="checkbox-item"><input type="radio" name="teamwork" value="good"> Good</label>
+                    <label class="checkbox-item"><input type="radio" name="teamwork" value="adequate"> Adequate</label>
+                    <label class="checkbox-item"><input type="radio" name="teamwork" value="needs"> Needs Development</label>
+                </div>
+                <strong>Notes:</strong>
+                <textarea class="notes-area" style="min-height: 30px;" name="teamworkNotes"></textarea>
+            </div>
+
+            <div class="competency-section">
+                <div class="competency-title">Physical Demands Awareness</div>
+                <p style="margin: 4px 0; font-size: 9pt;">Can meet physical requirements (sitting on floor, lifting up to 50 lbs, managing elopement, blocking behaviors)?</p>
+                <div class="checkbox-group">
+                    <label class="checkbox-item"><input type="checkbox" name="physicalYes"> Yes</label>
+                    <label class="checkbox-item"><input type="checkbox" name="physicalAccommodations"> With accommodations</label>
+                    <label class="checkbox-item"><input type="checkbox" name="physicalConcerns"> Discussed concerns</label>
+                </div>
+                <strong>Notes:</strong>
+                <textarea class="notes-area" style="min-height: 30px;" name="physicalNotes"></textarea>
+            </div>
+        </div>
+
+        <h2>Schedule & Logistics</h2>
+
+        <div class="section-content">
+            <div style="margin-bottom: 10px;">
+                <strong>Availability:</strong>
+                <div class="checkbox-group">
+                    <label class="checkbox-item"><input type="checkbox" name="availFull"> Full-Time</label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="availPart"> Part-Time (<input type="text" name="availPartHours" style="width: 50px; border: none; border-bottom: 1px solid #333; padding: 2px;"> hours/week)
+                    </label>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 10px;">
+                <strong>Days Available:</strong>
+                <div class="checkbox-group">
+                    <label class="checkbox-item"><input type="checkbox" name="dayMon"> M</label>
+                    <label class="checkbox-item"><input type="checkbox" name="dayTue"> T</label>
+                    <label class="checkbox-item"><input type="checkbox" name="dayWed"> W</label>
+                    <label class="checkbox-item"><input type="checkbox" name="dayThu"> Th</label>
+                    <label class="checkbox-item"><input type="checkbox" name="dayFri"> F</label>
+                    <label class="checkbox-item"><input type="checkbox" name="daySat"> Sat</label>
+                    <label class="checkbox-item"><input type="checkbox" name="daySun"> Sun</label>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 10px;">
+                <strong>Time Preferences:</strong>
+                <div class="checkbox-group">
+                    <label class="checkbox-item"><input type="checkbox" name="timeMorning"> Mornings</label>
+                    <label class="checkbox-item"><input type="checkbox" name="timeAfternoon"> Afternoons</label>
+                    <label class="checkbox-item"><input type="checkbox" name="timeEvening"> Evenings</label>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 10px;">
+                <strong>Reliable Transportation:</strong>
+                <div class="checkbox-group">
+                    <label class="checkbox-item"><input type="radio" name="transport" value="yes"> Yes</label>
+                    <label class="checkbox-item"><input type="radio" name="transport" value="no"> No</label>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 10px;">
+                <strong>Willing to travel for home-based services:</strong>
+                <div class="checkbox-group">
+                    <label class="checkbox-item"><input type="radio" name="travel" value="yes"> Yes</label>
+                    <label class="checkbox-item">
+                        <input type="radio" name="travel" value="no"> No (Max distance: <input type="text" name="travelMax" style="width: 80px; border: none; border-bottom: 1px solid #333; padding: 2px;">)
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <h2>Red Flags & Concerns</h2>
+
+        <div class="section-content">
+            <div class="flag-section">
+                <label class="checkbox-item"><input type="checkbox" name="flagGaps"> Gaps in employment not explained</label>
+                <label class="checkbox-item"><input type="checkbox" name="flagInconsistent"> Inconsistent understanding of ABA principles</label>
+                <label class="checkbox-item"><input type="checkbox" name="flagConcerning"> Concerning responses to behavioral scenarios</label>
+                <label class="checkbox-item"><input type="checkbox" name="flagBoundaries"> Lack of understanding of professional boundaries</label>
+                <label class="checkbox-item"><input type="checkbox" name="flagAvailability"> Availability doesn't match needs</label>
+                <label class="checkbox-item">
+                    <input type="checkbox" name="flagOtherCheck"> Other: <input type="text" name="flagOther" style="width: 120px; border: none; border-bottom: 1px solid #333; padding: 2px;">
+                </label>
+            </div>
+            <strong>Details:</strong>
+            <textarea class="notes-area" name="flagDetails"></textarea>
+        </div>
+
+        <h2>Strengths & Positive Indicators</h2>
+
+        <div class="section-content">
+            <div class="flag-section">
+                <label class="checkbox-item"><input type="checkbox" name="strengthKnowledge"> Strong clinical knowledge for experience level</label>
+                <label class="checkbox-item"><input type="checkbox" name="strengthRapport"> Excellent rapport-building skills</label>
+                <label class="checkbox-item"><input type="checkbox" name="strengthPassionate"> Passionate about ABA and client progress</label>
+                <label class="checkbox-item"><input type="checkbox" name="strengthExperience"> Previous experience with similar population</label>
+                <label class="checkbox-item"><input type="checkbox" name="strengthProfessional"> Professional demeanor and communication</label>
+                <label class="checkbox-item"><input type="checkbox" name="strengthFlexible"> Flexible and reliable</label>
+                <label class="checkbox-item">
+                    <input type="checkbox" name="strengthOtherCheck"> Other: <input type="text" name="strengthOther" style="width: 120px; border: none; border-bottom: 1px solid #333; padding: 2px;">
+                </label>
+            </div>
+            <strong>Details:</strong>
+            <textarea class="notes-area" name="strengthDetails"></textarea>
+        </div>
+
+        <h2>Overall Assessment</h2>
+
+        <div class="section-content">
+            <div style="margin-bottom: 10px;">
+                <strong>Overall Impression:</strong>
+                <div class="checkbox-group">
+                    <label class="checkbox-item"><input type="radio" name="impression" value="strong"> Strong Hire</label>
+                    <label class="checkbox-item"><input type="radio" name="impression" value="hire"> Hire</label>
+                    <label class="checkbox-item"><input type="radio" name="impression" value="maybe"> Maybe/Second Interview</label>
+                    <label class="checkbox-item"><input type="radio" name="impression" value="no"> Do Not Hire</label>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 10px;">
+                <strong>Recommended Next Steps:</strong>
+                <div class="checkbox-group">
+                    <label class="checkbox-item"><input type="checkbox" name="nextOffer"> Extend offer</label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="nextSecondCheck"> Second interview with: <input type="text" name="nextSecond" style="width: 150px; border: none; border-bottom: 1px solid #333; padding: 2px;">
+                    </label>
+                    <label class="checkbox-item"><input type="checkbox" name="nextSkills"> Skills demonstration/role-play session</label>
+                    <label class="checkbox-item"><input type="checkbox" name="nextReference"> Reference checks</label>
+                    <label class="checkbox-item"><input type="checkbox" name="nextReject"> Reject and send notification</label>
+                </div>
+            </div>
+
+            <strong>Interviewer Summary & Recommendation:</strong>
+            <textarea class="notes-area" style="min-height: 80px;" name="summary"></textarea>
+        </div>
+
+        <div class="signature-section">
+            <div>
+                <span class="field-label">Interviewer Signature:</span>
+                <input type="text" class="signature-line" name="signature">
+            </div>
+            <div>
+                <span class="field-label">Date:</span>
+                <input type="date" class="signature-line" name="signatureDate">
+            </div>
+        </div>
+    </form>
+
+    <script>
+        // Auto-save functionality
+        let autoSaveTimeout;
+        const form = document.getElementById('interviewForm');
+        const autosaveIndicator = document.querySelector('.autosave-indicator');
+
+        // Listen for changes on all form inputs
+        form.addEventListener('input', () => {
+            clearTimeout(autoSaveTimeout);
+            autosaveIndicator.style.opacity = '1';
+            
+            autoSaveTimeout = setTimeout(() => {
+                autoSaveToLocalStorage();
+                autosaveIndicator.style.opacity = '0.5';
+            }, 2000); // Auto-save after 2 seconds of inactivity
+        });
+
+        // Auto-save to localStorage
+        function autoSaveToLocalStorage() {
+            const formData = getFormData();
+            localStorage.setItem('abaform_autosave', JSON.stringify(formData));
+        }
+
+        // Load auto-saved data on page load
+        window.addEventListener('load', () => {
+            const autoSaved = localStorage.getItem('abaform_autosave');
+            if (autoSaved) {
+                const data = JSON.parse(autoSaved);
+                loadFormData(data);
+            }
+        });
+
+        // Get all form data
+        function getFormData() {
+            const formData = {};
+            const inputs = form.querySelectorAll('input, textarea');
+            
+            inputs.forEach(input => {
+                if (input.name) {
+                    if (input.type === 'checkbox') {
+                        formData[input.name] = input.checked;
+                    } else if (input.type === 'radio') {
+                        if (input.checked) {
+                            formData[input.name] = input.value;
+                        }
+                    } else {
+                        formData[input.name] = input.value;
+                    }
+                }
+            });
+            
+            return formData;
+        }
+
+        // Load form data
+        function loadFormData(data) {
+            Object.keys(data).forEach(key => {
+                const input = form.querySelector(`[name="${key}"]`);
+                if (input) {
+                    if (input.type === 'checkbox') {
+                        input.checked = data[key];
+                    } else if (input.type === 'radio') {
+                        if (input.value === data[key]) {
+                            input.checked = true;
+                        }
+                    } else {
+                        input.value = data[key];
+                    }
+                }
+            });
+        }
+
+        // Save form with custom name
+        function saveForm() {
+            const candidateName = form.querySelector('[name
+="candidateName"]').value;
+            const interviewDate = form.querySelector('[name="interviewDate"]').value;
+            
+            // Pre-fill the form name with candidate name and date
+            const suggestedName = candidateName && interviewDate 
+                ? `${candidateName} - ${interviewDate}` 
+                : candidateName || `Interview ${new Date().toLocaleDateString()}`;
+            
+            document.getElementById('formName').value = suggestedName;
+            document.getElementById('saveModal').classList.add('show');
+        }
+
+        // Confirm save with custom name
+        function confirmSave() {
+            const formName = document.getElementById('formName').value.trim();
+            
+            if (!formName) {
+                showToast('Please enter a name for this form', 'error');
+                return;
+            }
+            
+            const formData = getFormData();
+            const savedForms = JSON.parse(localStorage.getItem('abaform_saved') || '[]');
+            
+            // Check if name already exists
+            const existingIndex = savedForms.findIndex(f => f.name === formName);
+            
+            const saveData = {
+                name: formName,
+                data: formData,
+                timestamp: new Date().toISOString()
+            };
+            
+            if (existingIndex >= 0) {
+                // Update existing
+                savedForms[existingIndex] = saveData;
+                showToast('Form updated successfully! 💾', 'success');
+            } else {
+                // Add new
+                savedForms.push(saveData);
+                showToast('Form saved successfully! 💾', 'success');
+            }
+            
+            localStorage.setItem('abaform_saved', JSON.stringify(savedForms));
+            closeSaveModal();
+        }
+
+        function closeSaveModal() {
+            document.getElementById('saveModal').classList.remove('show');
+        }
+
+        // Open load modal
+        function openLoadModal() {
+            const savedForms = JSON.parse(localStorage.getItem('abaform_saved') || '[]');
+            const listContainer = document.getElementById('savedFormsList');
+            
+            if (savedForms.length === 0) {
+                listContainer.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">No saved forms found. Save your first form to see it here!</p>';
+            } else {
+                listContainer.innerHTML = savedForms
+                    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+                    .map((form, index) => {
+                        const date = new Date(form.timestamp).toLocaleString();
+                        return `
+                            <div class="saved-form-item">
+                                <div class="saved-form-info">
+                                    <div class="saved-form-name">${form.name}</div>
+                                    <div class="saved-form-date">Saved: ${date}</div>
+                                </div>
+                                <div class="saved-form-actions">
+                                    <button class="small-btn load" onclick="loadSavedForm(${index})">Load</button>
+                                    <button class="small-btn delete" onclick="deleteSavedForm(${index})">Delete</button>
+                                </div>
+                            </div>
+                        `;
+                    })
+                    .join('');
+            }
+            
+            document.getElementById('loadModal').classList.add('show');
+        }
+
+        function closeLoadModal() {
+            document.getElementById('loadModal').classList.remove('show');
+        }
+
+        // Load a saved form
+        function loadSavedForm(index) {
+            const savedForms = JSON.parse(localStorage.getItem('abaform_saved') || '[]');
+            const form = savedForms[index];
+            
+            if (form) {
+                loadFormData(form.data);
+                showToast(`Loaded: ${form.name} 📂`, 'success');
+                closeLoadModal();
+            }
+        }
+
+        // Delete a saved form
+        function deleteSavedForm(index) {
+            if (!confirm('Are you sure you want to delete this saved form?')) {
+                return;
+            }
+            
+            const savedForms = JSON.parse(localStorage.getItem('abaform_saved') || '[]');
+            const deletedName = savedForms[index].name;
+            savedForms.splice(index, 1);
+            localStorage.setItem('abaform_saved', JSON.stringify(savedForms));
+            
+            showToast(`Deleted: ${deletedName} 🗑️`, 'success');
+            openLoadModal(); // Refresh the list
+        }
+
+        // Clear all form data
+        function clearForm() {
+            if (!confirm('Are you sure you want to clear all fields? This cannot be undone.')) {
+                return;
+            }
+            
+            form.reset();
+            localStorage.removeItem('abaform_autosave');
+            showToast('Form cleared! 🗑️', 'success');
+        }
+
+        // Export to PDF (print function)
+        function exportToPDF() {
+            showToast('Opening print dialog... 📄', 'success');
+            setTimeout(() => {
+                window.print();
+            }, 500);
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast show';
+            
+            if (type === 'error') {
+                toast.classList.add('error');
+            }
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Ctrl/Cmd + S to save
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                saveForm();
+            }
+            
+            // Ctrl/Cmd + P to print
+            if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+                e.preventDefault();
+                exportToPDF();
+            }
+            
+            // Escape to close modals
+            if (e.key === 'Escape') {
+                closeLoadModal();
+                closeSaveModal();
+            }
+        });
+
+        // Close modals when clicking outside
+        document.getElementById('loadModal').addEventListener('click', (e) => {
+            if (e.target.id === 'loadModal') {
+                closeLoadModal();
+            }
+        });
+
+        document.getElementById('saveModal').addEventListener('click', (e) => {
+            if (e.target.id === 'saveModal') {
+                closeSaveModal();
+            }
+        });
+
+        // Show welcome message on first load
+        if (!localStorage.getItem('abaform_visited')) {
+            setTimeout(() => {
+                showToast('Welcome! Your form auto-saves as you type ✨', 'success');
+                localStorage.setItem('abaform_visited', 'true');
+            }, 1000);
+        }
+    </script>
+
+</body>
+</html>
